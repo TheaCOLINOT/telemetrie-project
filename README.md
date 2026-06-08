@@ -45,6 +45,12 @@ npm run dev
 
 L'application s'ouvrira automatiquement à `http://localhost:3000`
 
+
+3. **Pour démarrer les deux services (umami et glitchip) :**
+```bash
+docker compose up -d
+```
+
 ## Dépendances principales
 
 - **React** - Bibliothèque UI
