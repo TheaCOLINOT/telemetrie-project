@@ -42,9 +42,9 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-black/70 pointer-events-none" aria-hidden="true" />
         <div className="container mx-auto max-w-3xl text-center relative">
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-white mb-5 leading-tight tracking-tight">
+          <h1 className="text-5xl sm:text-6xl font-regular text-white mb-5 leading-tight tracking-tight">
             Bienvenue chez{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">ShopHub</span>
+            <span className="text-transparent bg-clip-text font-extrabold text-white">ShopHub</span>
           </h1>
           <p className="text-lg text-white/75 mb-10 max-w-xl mx-auto leading-relaxed">
             Découvrez notre sélection de produits tech de qualité à des prix imbattables.
