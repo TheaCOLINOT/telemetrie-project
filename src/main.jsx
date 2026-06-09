@@ -9,6 +9,17 @@ Sentry.init({
   dsn: "https://523f2873f2fc4ef7a7e0b5174122b2bd@app.glitchtip.com/24496",
   tracesSampleRate: 0.01, // 1% of transactions — adjust to your needs
   autoSessionTracking: false, // GlitchTip does not support sessions
+  environment: "development",
+  release: "ecommerce-react@0.0.1",
+  ignoreErrors: [
+    "ResizeObserver loop limit exceeded",
+    "Network Error"
+  ],
+});
+
+Sentry.setUser({
+  id: 123,
+  email: "test@test.com",
 });
 
 setTimeout(() => {
