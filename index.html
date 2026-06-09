@@ -7,6 +7,25 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx">
+      
+      import * as Sentry from "@sentry/react";
+
+function TestGlitchTip() {
+  return (
+    <button
+      onClick={() => {
+        Sentry.captureException(
+          new Error("Test GlitchTip depuis React")
+        );
+      }}
+    >
+      Tester GlitchTip
+    </button>
+  );
+}
+
+export default TestGlitchTip;
+    </script>
   </body>
 </html>
