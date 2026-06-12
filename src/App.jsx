@@ -18,11 +18,22 @@ function ScrollToTop() {
   return null
 }
 
+function UmamiPageTracker() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.umami?.track) {
+      window.umami.track({ url: pathname })
+    }
+  }, [pathname])
+  return null
+}
+
 export default function App() {
   return (
     <CartProvider>
       <Router>
         <ScrollToTop />
+        <UmamiPageTracker />
         <div className="flex flex-col min-h-screen bg-orange-50">
           <Header />
           <main className="flex-grow">
