@@ -3,29 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>E-Commerce Shop</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>ShopHub</title>
+    <!-- Umami Analytics -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="57dcd6e5-373d-4e47-b1a8-3950c7b655d9" data-domains="ton-domaine.com"></script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx">
-      
-      import * as Sentry from "@sentry/react";
-
-function TestGlitchTip() {
-  return (
-    <button
-      onClick={() => {
-        Sentry.captureException(
-          new Error("Test GlitchTip depuis React")
-        );
-      }}
-    >
-      Tester GlitchTip
-    </button>
-  );
-}
-
-export default TestGlitchTip;
-    </script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
