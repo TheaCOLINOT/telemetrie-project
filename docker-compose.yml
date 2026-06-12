@@ -1,20 +1,21 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:15
+    restart: unless-stopped
     environment:
       POSTGRES_DB: glitchtip
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: secret_password
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
   redis:
     image: redis:7
+    restart: unless-stopped
 
-  web:
+  glitchtip:
     image: glitchtip/glitchtip:latest
+    restart: unless-stopped
     depends_on:
       - postgres
       - redis
@@ -29,32 +30,6 @@ services:
     volumes:
       - uploads:/code/uploads
 
-  worker:
-    image: glitchtip/glitchtip:latest
-    depends_on:
-      - postgres
-      - redis
-    command: celery -A glitchtip worker -l info
-    environment:
-      DATABASE_URL: postgres://postgres:secret_password@postgres:5432/glitchtip
-      SECRET_KEY: un_tres_long_secret_aleatoire_ici
-      GLITCHTIP_DOMAIN: http://localhost:8000
-    volumes:
-      - uploads:/code/uploads
-
-  beat:
-    image: glitchtip/glitchtip:latest
-    depends_on:
-      - postgres
-      - redis
-    command: celery -A glitchtip beat -l info
-    environment:
-      DATABASE_URL: postgres://postgres:secret_password@postgres:5432/glitchtip
-      SECRET_KEY: un_tres_long_secret_aleatoire_ici
-      GLITCHTIP_DOMAIN: http://localhost:8000
-    volumes:
-      - uploads:/code/uploads
-
 volumes:
-  pg-data:
+  postgres-data:
   uploads:
