@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
           <div>
-            <span className="text-2xl font-bold text-orange-400 font-rubik tracking-tight block mb-3">ShopHub</span>
+            <span className="text-2xl font-bold text-orange-400 font-rubik tracking-tight block mb-3">Eco-Hardware</span>
             <p className="text-gray-400 text-sm leading-relaxed">
               Votre boutique en ligne de confiance pour les meilleures affaires. Qualité premium, livraison rapide.
             </p>
@@ -35,7 +35,7 @@ export default function Footer() {
                 <svg className="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                 </svg>
-                contact@shophub.fr
+                contact@eco-hardware.fr
               </li>
               <li className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
@@ -48,7 +48,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-gray-500 text-sm">© {currentYear} ShopHub. Tous droits réservés.</p>
+          <p className="text-gray-500 text-sm">© {currentYear} Eco-Hardware. Tous droits réservés.</p>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-green-400" />
             <span className="text-gray-500 text-xs">Paiements sécurisés SSL</span>
