@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Sentry } from '../lib/sentry'
 import { useCart } from '../contexts/CartContext'
 import { analytics } from '../lib/analytics'
+import { processPayment } from '../lib/payment'
 
 const validate = (data) => {
   const errors = {}
@@ -46,12 +48,14 @@ function FormField({ id, label, type = 'text', name, placeholder, value, onChang
   )
 }
 
-export default function Checkout() {
+function CheckoutPage() {
   const { cart, cartTotal, clearCart } = useCart()
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderNumber] = useState(() => Math.floor(Math.random() * 900000) + 100000)
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', address: '', city: '', zipCode: '' })
   const [touched, setTouched] = useState({})
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [paymentError, setPaymentError] = useState(null)
 
   const errors = validate(formData)
   const visibleErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => touched[key]))
@@ -67,7 +71,7 @@ export default function Checkout() {
     setTouched((prev) => ({ ...prev, [name]: true }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const currentErrors = validate(formData)
     if (Object.keys(currentErrors).length > 0) {
@@ -75,9 +79,27 @@ export default function Checkout() {
       analytics.checkoutValidationError(Object.keys(currentErrors))
       return
     }
-    analytics.orderCompleted(orderNumber, cartTotal)
-    setOrderPlaced(true)
-    clearCart()
+
+    setIsProcessing(true)
+    setPaymentError(null)
+
+    try {
+      await Sentry.startSpan({ name: 'checkout.payment', op: 'payment.process' }, async () => {
+        await processPayment()
+      })
+      analytics.orderCompleted(orderNumber, cartTotal)
+      setOrderPlaced(true)
+      clearCart()
+    } catch (error) {
+      Sentry.captureException(error)
+      setPaymentError(
+        error instanceof TypeError
+          ? 'Erreur technique lors du paiement (bug intermittent). Veuillez réessayer.'
+          : 'Le paiement a échoué. Veuillez réessayer dans quelques instants.',
+      )
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   if (cart.length === 0 && !orderPlaced) {
@@ -131,7 +153,7 @@ export default function Checkout() {
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} noValidate className="bg-white/80 backdrop-blur-sm rounded-2xl border border-orange-100/60 shadow-sm p-8">
             <h2 className="text-xl font-bold text-gray-900 mb-6 pb-4 border-b border-orange-50">Informations de livraison</h2>
-            <fieldset className="space-y-5">
+            <fieldset className="space-y-5" disabled={isProcessing}>
               <legend className="sr-only">Coordonnées personnelles</legend>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField id="firstName" label="Prénom" name="firstName" placeholder="Marie" value={formData.firstName} onChange={handleChange} onBlur={handleBlur} required autoComplete="given-name" error={visibleErrors.firstName} />
@@ -146,16 +168,44 @@ export default function Checkout() {
               </div>
             </fieldset>
             <p className="text-xs text-gray-400 mt-4"><span className="text-orange-500">*</span> Champs obligatoires</p>
+
+            {paymentError && (
+              <div role="alert" className="mt-6 flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <div>
+                  <p className="font-semibold">Paiement échoué</p>
+                  <p className="mt-0.5">{paymentError}</p>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={Object.keys(touched).length > 0 && !isFormValid}
-              className={`w-full mt-8 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${Object.keys(touched).length > 0 && !isFormValid ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none focus:ring-gray-300' : 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-300/40 cursor-pointer focus:ring-orange-500'}`}
+              disabled={isProcessing || (Object.keys(touched).length > 0 && !isFormValid)}
+              className={`w-full mt-8 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${isProcessing || (Object.keys(touched).length > 0 && !isFormValid) ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none focus:ring-gray-300' : 'bg-orange-600 text-white hover:bg-orange-700 shadow-orange-300/40 cursor-pointer focus:ring-orange-500'}`}
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Confirmer la commande
+              {isProcessing ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Traitement du paiement…
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Payer et confirmer la commande
+                </>
+              )}
             </button>
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              Simulation Eco-Hardware — environ 1 paiement sur 3 échoue volontairement pour tester GlitchTip.
+            </p>
           </form>
         </div>
 
@@ -191,3 +241,5 @@ export default function Checkout() {
     </div>
   )
 }
+
+export default Sentry.withProfiler(CheckoutPage, { name: 'Checkout' })
