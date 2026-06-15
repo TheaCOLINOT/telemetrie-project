@@ -1,48 +1,33 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import * as Sentry from "@sentry/react";
-console.log("Sentry chargé :", Sentry);
-import App from "./App";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import { initSentry, Sentry } from './lib/sentry'
 import './index.css'
 
-Sentry.init({
-  dsn: "https://523f2873f2fc4ef7a7e0b5174122b2bd@app.glitchtip.com/24496",
-  tracesSampleRate: 0.01, // 1% of transactions — adjust to your needs
-  autoSessionTracking: false, // GlitchTip does not support sessions
-  environment: "development",
-  release: "ecommerce-react@0.0.1",
-  ignoreErrors: [
-    "ResizeObserver loop limit exceeded",
-    "Network Error"
-  ],
-});
+initSentry()
 
-Sentry.setUser({
-  id: 123,
-  email: "test@test.com",
-});
+const SentryApp = Sentry.withErrorBoundary(App, {
+  fallback: ({ resetError }) => (
+    <div className="min-h-screen bg-orange-50 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl border border-orange-100 shadow-sm p-8 max-w-md text-center">
+        <h1 className="text-xl font-bold text-gray-900 mb-2">Une erreur est survenue</h1>
+        <p className="text-gray-500 text-sm mb-6">
+          L'application a rencontré un problème inattendu. L'incident a été signalé à GlitchTip.
+        </p>
+        <button
+          type="button"
+          onClick={resetError}
+          className="bg-orange-600 text-white px-6 py-2.5 rounded-xl hover:bg-orange-700 transition-colors font-semibold"
+        >
+          Réessayer
+        </button>
+      </div>
+    </div>
+  ),
+})
 
-setTimeout(() => {
-  try {
-    throw new Error("Erreur test GlitchTip");
-  } catch (e) {
-    Sentry.captureException(e);
-    console.log("Exception envoyée");
-  }
-}, 3000);
-
-export default Sentry.withErrorBoundary(App, {
-  fallback: <p>Une erreur est survenue</p>,
-});
-
-Sentry.captureMessage("Test GlitchTip au démarrage");
-console.log("Message envoyé à GlitchTip");
-
-Sentry.captureMessage("Application démarrée");
-
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
+    <SentryApp />
+  </React.StrictMode>,
+)
