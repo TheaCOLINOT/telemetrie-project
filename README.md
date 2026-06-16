@@ -1,6 +1,7 @@
 # Application E-Commerce React
 
 application e-commerce moderne développée avec React, Vite, et Tailwind CSS
+# ne pas oublie le : tracking personnalisé, UTM source (pour tracker qui vient de quelle source), tunnel d'achat
 
 ## Fonctionnalités
 
