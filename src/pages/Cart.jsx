@@ -8,8 +8,7 @@ export default function Cart() {
 
   useEffect(() => {
     if (cart.length > 0) analytics.cartViewed(cart.length, cartTotal)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, []) 
   if (cart.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 max-w-md text-center">

@@ -23,9 +23,16 @@ function ScrollToTop() {
 function UTMTracker() {
   useEffect(() => {
     const utm = captureUTM()
-    if (utm.utm_source) {
-      analytics.utmVisit(utm)
+    if (!utm.utm_source) return
+
+    const send = () => {
+      if (window.umami?.track) {
+        analytics.utmVisit(utm)
+      } else {
+        setTimeout(send, 300)
+      }
     }
+    send()
   }, [])
   return null
 }

@@ -16,7 +16,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (product) analytics.productViewed(product)
-  }, [product?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [product?.id]) 
 
   if (!product) {
     return (
