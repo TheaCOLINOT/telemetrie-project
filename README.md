@@ -134,3 +134,132 @@ npm run lint      # linting
 - Le panier est en mémoire (perdu au rechargement de page)
 - La commande est simulée, pas de vrai paiement
 - Pour plus de détails sur l'observabilité, voir /rapports
+
+
+Voici une version enrichie avec **travail effectué + commandes utiles + vérification**, adaptée à un README de projet :
+
+---
+
+## GlitchTip (Monitoring & télémétrie)
+
+Dans le cadre de ce projet, une solution de monitoring a été mise en place avec **GlitchTip**, une plateforme open source compatible avec le SDK Sentry. Elle permet de centraliser les erreurs applicatives et de faciliter le suivi ainsi que le débogage en environnement de développement et de production.
+
+---
+
+## Mise en place de l’infrastructure
+
+GlitchTip a été déployé via **Docker Compose** dans une architecture composée de plusieurs services :
+
+* **GlitchTip** : application principale exposant l’interface de monitoring
+* **PostgreSQL** : base de données dédiée au stockage des utilisateurs, projets et événements
+* **Redis** : gestion des tâches asynchrones et du cache
+
+Cette architecture permet un environnement isolé, reproductible et facilement déployable.
+
+---
+
+## Travail effectué
+
+Les étapes suivantes ont été réalisées :
+
+* Création des services Docker (GlitchTip, PostgreSQL, Redis)
+* Configuration des variables d’environnement (DSN, SECRET_KEY, DATABASE_URL)
+* Application des migrations de base de données
+* Création d’un compte administrateur
+* Création d’une organisation et d’un projet GlitchTip
+* Récupération et configuration du DSN côté application React
+* Intégration du SDK `@sentry/react` dans le frontend
+
+---
+
+## Intégration dans l’application React
+
+Le SDK officiel Sentry (compatible GlitchTip) a été installé et configuré dans le point d’entrée de l’application (`main.jsx`).
+
+Il permet de :
+
+* capturer automatiquement les erreurs JavaScript
+* remonter les exceptions non gérées
+* envoyer des événements de test
+* suivre certaines métriques de performance (optionnel)
+
+---
+
+## Commandes utiles
+
+### Lancer l’environnement
+
+```bash
+docker compose up -d
+```
+
+### Appliquer les migrations GlitchTip
+
+```bash
+docker compose run --rm glitchtip python manage.py migrate
+```
+
+### Créer un administrateur
+
+```bash
+docker compose run --rm glitchtip python manage.py createsuperuser
+```
+
+### Voir les logs
+
+```bash
+docker compose logs -f glitchtip
+```
+
+### Vérifier les conteneurs actifs
+
+```bash
+docker compose ps
+```
+
+---
+
+## Vérification du fonctionnement
+
+Le bon fonctionnement de GlitchTip a été vérifié de plusieurs manières :
+
+### 1. Accès à l’interface web
+
+* GlitchTip : `http://localhost:8000`
+* Vérification de la connexion et de l’organisation créée
+
+---
+
+### 2. Envoi d’un événement de test
+
+```javascript
+import * as Sentry from "@sentry/react";
+
+Sentry.captureMessage("Test GlitchTip");
+```
+
+Si la configuration est correcte, l’événement apparaît dans l’interface GlitchTip.
+
+---
+
+### 3. Vérification réseau
+
+Dans l’onglet réseau du navigateur, une requête de type :
+
+```
+/api/<project_id>/envelope/
+```
+
+avec un code **200 OK** confirme l’envoi des événements.
+
+---
+
+## Résultat obtenu
+
+Grâce à cette mise en place, les erreurs de l’application React sont désormais centralisées dans GlitchTip. Cela permet :
+
+* une meilleure visibilité des bugs
+* un suivi en temps réel des erreurs
+* une amélioration de la qualité applicative
+* une aide au debugging en production
+
