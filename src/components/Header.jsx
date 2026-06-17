@@ -15,7 +15,7 @@ export default function Header() {
     <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-orange-100/60 shadow-sm shadow-orange-100/30">
       <nav className="container mx-auto px-4 py-3 flex items-center justify-between max-w-7xl">
         <Link to="/" className="text-2xl font-bold text-orange-600 font-rubik tracking-tight">
-          ShopHub
+          Eco-Hardware
         </Link>
 
         <div className="flex items-center gap-1">
