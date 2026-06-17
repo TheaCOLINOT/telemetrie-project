@@ -10,6 +10,8 @@ import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import NotFound from './pages/NotFound'
+import { captureUTM } from './lib/utm'
+import { analytics } from './lib/analytics'
 
 const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes)
 
@@ -18,6 +20,23 @@ function ScrollToTop() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
+  return null
+}
+
+function UTMTracker() {
+  useEffect(() => {
+    const utm = captureUTM()
+    if (!utm.utm_source) return
+
+    const send = () => {
+      if (window.umami?.track) {
+        analytics.utmVisit(utm)
+      } else {
+        setTimeout(send, 300)
+      }
+    }
+    send()
+  }, [])
   return null
 }
 
@@ -36,6 +55,7 @@ export default function App() {
     <CartProvider>
       <Router>
         <ScrollToTop />
+        <UTMTracker />
         <UmamiPageTracker />
         <div className="flex flex-col min-h-screen bg-orange-50">
           <Header />

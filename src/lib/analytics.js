@@ -1,7 +1,10 @@
+import { getStoredUTM } from './utm'
+
 const track = (event, properties = {}) => {
   try {
     if (typeof window !== 'undefined' && window.umami?.track) {
-      window.umami.track(event, properties)
+      const utm = getStoredUTM()
+      window.umami.track(event, { ...utm, ...properties })
     }
   } catch {
     // analytics ne doit jamais casser l'app
@@ -49,4 +52,13 @@ export const analytics = {
 
   checkoutValidationError: (fields) =>
     track('checkout_validation_error', { invalid_fields: fields.join(',') }),
+
+  utmVisit: (utm) =>
+    track('utm_visit', {
+      utm_source: utm.utm_source || 'direct',
+      utm_medium: utm.utm_medium || '(none)',
+      utm_campaign: utm.utm_campaign || '(none)',
+      utm_term: utm.utm_term || '(none)',
+      utm_content: utm.utm_content || '(none)',
+    }),
 }
